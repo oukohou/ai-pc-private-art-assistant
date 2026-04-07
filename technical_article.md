@@ -534,7 +534,7 @@ def set_power_mode(self, mode="balanced"):
 
 ### 9.1 代码地址
 
-GitHub: [https://github.com/yourusername/ai-pc-private-art-assistant](https://github.com/yourusername/ai-pc-private-art-assistant)
+GitHub: [https://github.com/oukohou/ai-pc-private-art-assistant](https://github.com/yourusername/ai-pc-private-art-assistant)
 
 ### 9.2 演示视频
 
@@ -553,7 +553,7 @@ GitHub: [https://github.com/yourusername/ai-pc-private-art-assistant](https://gi
 
 ---
 
-**作者**: Intel AI PC开发者  
+**作者**: 璇珠  
 **日期**: 2026年4月  
 **版本**: v1.0.0  
 **许可证**: MIT License
