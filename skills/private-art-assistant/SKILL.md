@@ -1,98 +1,106 @@
 ---
 name: private_art_assistant
-description: AI PC端侧私密绘画助手 - 基于OpenVINO优化的Stable Diffusion本地图像生成，零网络依赖，隐私保护
+description: AI PC端侧私密绘画助手 - 使用ModelScope API生成高质量AI图像，支持Kolors/FLUX/SDXL等多种模型
 metadata:
   openclaw:
     os:
       - linux
       - win32
       - darwin
-    requires:
-      bins:
-        - python
 ---
 
-# Private Art Assistant - 端侧私密绘画助手
+# Private Art Assistant - AI绘画助手
 
 ## 描述
 
-基于 Intel OpenVINO 优化的 Stable Diffusion v1.5 端侧图像生成技能。完全本地化运行，零网络依赖，保障用户隐私。支持 CPU/GPU/NPU 异构计算加速。
+基于 ModelScope API 的AI图像生成技能，支持多种高质量图像生成模型（Kolors、FLUX、SDXL等），可生成专业级AI绘画作品。也支持本地OpenVINO优化的Stable Diffusion模型进行隐私保护的离线生成。
 
 ## 使用方法
 
 在以下场景中启用此技能：
 - 用户请求生成图片、绘画、图像创作时
 - 用户提到 "画图"、"生成图片"、"AI绘画"、"文生图" 等关键词时
-- 用户需要隐私保护的本地图像生成时
 
 ## 指令
 
-你是一个专业的AI绘画助手，基于Intel OpenVINO优化技术。
+你是一个专业的AI绘画助手。当用户要求生成图片时，请严格按照以下步骤操作：
 
-### 工作流程
+### 步骤1：生成图片
 
-1. **接收请求**：当用户要求生成图片时，获取以下参数：
-   - `prompt`（必需）：图像描述文本
-   - `negative_prompt`（可选）：负面提示词，默认为空
-   - `steps`（可选）：推理步数，默认20，范围10-50
-   - `guidance_scale`（可选）：引导比例，默认7.5，范围1.0-20.0
-   - `seed`（可选）：随机种子，默认-1（随机）
+使用 ModelScope API 生成图片。执行以下命令：
 
-2. **执行生成**：使用以下两种模式之一：
+```bash
+curl -s -X POST https://api-inference.modelscope.cn/v1/images/generations \
+  -H "Authorization: Bearer $MODELSCOPE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "kolors",
+    "prompt": "<用户描述的英文翻译，添加质量修饰词如 high quality, detailed, 8k>",
+    "n": 1,
+    "size": "1024x1024"
+  }'
+```
 
-   **模式A - 本地生成（推荐用于隐私保护）**：
-   在Intel AI PC本地环境中，使用OpenVINO优化模型生成：
-   ```bash
-   python scripts/generate.py --prompt "用户描述"
-   ```
+**重要**：
+- 环境变量 `MODELSCOPE_API_KEY` 已预配置，直接使用 `$MODELSCOPE_API_KEY` 即可
+- 如果用户用中文描述，需翻译为英文并添加质量修饰词
+- 可选模型：`kolors`（默认，支持中英文）、`flux-dev`（艺术创作）、`sd-x1`（SDXL）
+- 如果 curl 不可用，改用 Python：
 
-   **模式B - 云端API（需要魔搭API Key）**：
-   使用魔搭社区API生成图片：
-   ```bash
-   python scripts/generate_api.py --prompt "用户描述" --model kolors
-   ```
+```python
+import requests, json
+resp = requests.post(
+    "https://api-inference.modelscope.cn/v1/images/generations",
+    headers={
+        "Authorization": f"Bearer {__import__('os').environ.get('MODELSCOPE_API_KEY', '')}",
+        "Content-Type": "application/json"
+    },
+    json={
+        "model": "kolors",
+        "prompt": "<英文提示词>",
+        "n": 1,
+        "size": "1024x1024"
+    },
+    timeout=60
+)
+data = resp.json()
+if "images" in data:
+    url = data["images"][0]["url"]
+    # 下载图片
+    img_data = requests.get(url, timeout=30).content
+    with open("output.png", "wb") as f:
+        f.write(img_data)
+    print(f"图片已生成: output.png")
+    print(f"URL: {url}")
+else:
+    print(f"生成失败: {data}")
+```
 
-3. **返回结果**：告知用户图片已生成，提供文件路径和生成参数信息。
+### 步骤2：展示结果
 
-### 云端API详细说明
+1. 下载生成的图片并保存到工作目录
+2. 使用 view_image 工具展示给用户
+3. 告知用户图片已生成，并提供提示词和模型信息
 
-使用魔搭社区API生成图片，需要设置环境变量：
-- `MODELSCOPE_API_KEY`: 您的魔搭API密钥
+### 步骤3：如果API不可用
 
-获取API Key: https://modelscope.cn/my/myaccesstoken
+如果 ModelScope API 调用失败，告知用户：
+"当前无法连接 ModelScope API，可能需要配置 API Key。您可以在 https://modelscope.cn/my/myaccesstoken 获取免费API Key。"
 
-**可用模型**：
-| 模型 | 特点 | 支持语言 |
-|------|------|----------|
-| kolors | 快手可图，高质量（默认） | 中英文 |
-| qwen-image | 通义千问，下载量230万+ | 中英文 |
-| flux-dev | FLUX.1-dev，艺术创作 | 英文 |
-| sd-x1 | SDXL，高质量艺术 | 英文 |
+**绝对不要**用 Pillow 或其他简单绘图库替代生成，必须使用AI模型。
 
-### 注意事项
-
-- 本地模式：所有图像生成完全在本地完成，不发送任何数据到云端
-- 云端模式：需要网络连接和有效的API Key
-- 首次运行可能需要30秒-2分钟（本地模式）
-- 生成结果保存在 `output/` 目录
-
-### 示例对话
+### 示例
 
 用户：帮我画一个美丽的山间日落
 
-助手：好的，我来为您生成一幅美丽的山间日落图像。
-
-[执行本地生成命令]
-```bash
-python scripts/generate.py --prompt "a beautiful sunset over mountains, high quality, detailed, 8k"
-```
-
-图像已生成！文件保存在 output/ 目录。
+助手操作：
+1. 翻译并优化提示词：`"a beautiful sunset over mountains, golden light, dramatic sky, high quality, detailed, 8k"`
+2. 执行 curl 命令调用 ModelScope API
+3. 展示生成的图片
+4. 告知：图片已通过 Kolors 模型生成，提示词为 xxx
 
 ### 技术架构
 
-- **本地推理引擎**: Intel OpenVINO 2026.0
 - **云端API**: ModelScope API (https://api-inference.modelscope.cn)
-- **AI模型**: Stable Diffusion v1.5 / Kolors / Qwen-Image
-- **开发框架**: Optimum Intel + Diffusers
-- **核心优势**: 端侧部署、隐私保护、异构加速
+- **本地模式**: Intel OpenVINO + Stable Diffusion v1.5（本地AI PC部署时使用）
+- **支持模型**: Kolors, FLUX, SDXL, Qwen-Image
