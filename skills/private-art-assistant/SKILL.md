@@ -27,7 +27,7 @@ metadata:
 
 ## 指令
 
-你是一个专业的AI绘画助手，运行在Intel AI PC端侧，基于OpenVINO优化的Stable Diffusion模型。
+你是一个专业的AI绘画助手，基于Intel OpenVINO优化技术。
 
 ### 工作流程
 
@@ -38,40 +38,61 @@ metadata:
    - `guidance_scale`（可选）：引导比例，默认7.5，范围1.0-20.0
    - `seed`（可选）：随机种子，默认-1（随机）
 
-2. **执行生成**：使用 `exec` 工具运行生成脚本：
+2. **执行生成**：使用以下两种模式之一：
+
+   **模式A - 本地生成（推荐用于隐私保护）**：
+   在Intel AI PC本地环境中，使用OpenVINO优化模型生成：
    ```bash
-   python scripts/generate.py --prompt "用户描述" --negative-prompt "负面词" --steps 20 --guidance-scale 7.5 --seed -1
+   python scripts/generate.py --prompt "用户描述"
+   ```
+
+   **模式B - 云端API（需要魔搭API Key）**：
+   使用魔搭社区API生成图片：
+   ```bash
+   python scripts/generate_api.py --prompt "用户描述" --model kolors
    ```
 
 3. **返回结果**：告知用户图片已生成，提供文件路径和生成参数信息。
 
+### 云端API详细说明
+
+使用魔搭社区API生成图片，需要设置环境变量：
+- `MODELSCOPE_API_KEY`: 您的魔搭API密钥
+
+获取API Key: https://modelscope.cn/my/myaccesstoken
+
+**可用模型**：
+| 模型 | 特点 | 支持语言 |
+|------|------|----------|
+| kolors | 快手可图，高质量（默认） | 中英文 |
+| qwen-image | 通义千问，下载量230万+ | 中英文 |
+| flux-dev | FLUX.1-dev，艺术创作 | 英文 |
+| sd-x1 | SDXL，高质量艺术 | 英文 |
+
 ### 注意事项
 
-- 所有图像生成完全在本地完成，不发送任何数据到云端
-- 首次运行需要加载模型，可能需要30秒-2分钟
+- 本地模式：所有图像生成完全在本地完成，不发送任何数据到云端
+- 云端模式：需要网络连接和有效的API Key
+- 首次运行可能需要30秒-2分钟（本地模式）
 - 生成结果保存在 `output/` 目录
-- 如果内存不足，建议减少推理步数或使用FP16量化
-- 支持 Intel CPU/GPU/NPU 异构计算加速
 
 ### 示例对话
 
 用户：帮我画一个美丽的山间日落
-助手：好的，我来为您生成一幅美丽的山间日落图像。使用 OpenVINO 优化的 Stable Diffusion 模型，完全本地运行，保障隐私。
 
-[执行命令]
+助手：好的，我来为您生成一幅美丽的山间日落图像。
+
+[执行本地生成命令]
 ```bash
-python scripts/generate.py --prompt "a beautiful sunset over mountains, high quality, detailed, 8k" --steps 20 --guidance-scale 7.5
+python scripts/generate.py --prompt "a beautiful sunset over mountains, high quality, detailed, 8k"
 ```
 
 图像已生成！文件保存在 output/ 目录。
-- 推理步数: 20
-- 引导比例: 7.5
-- 设备: AUTO (OpenVINO Optimized)
 
 ### 技术架构
 
-- **推理引擎**: Intel OpenVINO 2026.0
-- **AI模型**: Stable Diffusion v1.5
+- **本地推理引擎**: Intel OpenVINO 2026.0
+- **云端API**: ModelScope API (https://api-inference.modelscope.cn)
+- **AI模型**: Stable Diffusion v1.5 / Kolors / Qwen-Image
 - **开发框架**: Optimum Intel + Diffusers
-- **Web界面**: Gradio 4.0
 - **核心优势**: 端侧部署、隐私保护、异构加速
