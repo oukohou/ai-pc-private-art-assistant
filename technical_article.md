@@ -6,7 +6,17 @@
 
 **关键词**: OpenVINO, Stable Diffusion, 端侧AI, 异构计算, AI PC, 隐私保护
 
+- 代码地址
+GitHub: [https://github.com/oukohou/ai-pc-private-art-assistant](https://github.com/oukohou/ai-pc-private-art-assistant)
+
+- 灵感流
+[https://modelscope.cn/gallery/Dracarysall/deed72d0-3053-4828-b8dc-f9b75c857f5b](https://modelscope.cn/gallery/Dracarysall/deed72d0-3053-4828-b8dc-f9b75c857f5b)
+
+-  Skill 名称: private_art_assistant
+● Skill 链接: https://github.com/oukohou/ai-pc-private-art-assistant/tree/master/skills/private-art-assistant
 ---
+
+![首页截图](https://i.postimg.cc/tg8strZ0/shou-ye-jie-tu2.png)
 
 ## 1. 引言
 
@@ -37,6 +47,8 @@
 - **界面框架**: Gradio 4.0
 
 ---
+
+![生成截图](https://i.postimg.cc/Hn9jmdS1/tu-xiang-sheng-cheng-jie-tu.png)
 
 ## 2. 系统架构设计
 
@@ -174,22 +186,6 @@ compiled_model = core.compile_model(model, "GPU", config)
 | FP16    | 50%     | +80%    | ★★★★☆   |
 | INT8    | 25%     | +150%   | ★★★★☆   |
 
-#### 3.2.3 实际性能数据
-
-测试环境：
-- CPU: Intel Core Ultra 7 155H
-- GPU: Intel Arc Graphics
-- NPU: Intel AI Boost
-- 内存: 32GB DDR5
-
-性能对比：
-
-| 配置 | 推理时间 | 内存占用 | 加速比 |
-|------|---------|---------|--------|
-| CPU only (FP32) | 45秒 | 8GB | 1x |
-| CPU+GPU (FP16) | 18秒 | 6GB | 2.5x |
-| CPU+NPU+GPU (混合) | 12秒 | 5GB | 3.75x |
-| INT8量化 | 8秒 | 3GB | 5.6x |
 
 ### 3.3 隐私保护设计
 
@@ -284,6 +280,50 @@ curl -X POST http://localhost:8000/process \
   "generation_time": 12.5
 }
 ```
+
+#### 3.4.3 Skill 链接
+
+本项目已按照 OpenClaw 技能规范，将技能封装为标准的 SKILL.md 格式，可直接在 OpenClaw / CoPaw 中导入使用。
+
+- **Skill 源码（GitHub）**：[https://github.com/oukohou/ai-pc-private-art-assistant/tree/master/skills/private-art-assistant](https://github.com/oukohou/ai-pc-private-art-assistant/tree/master/skills/private-art-assistant)
+
+Skill 目录结构：
+
+```
+skills/private-art-assistant/
+├── SKILL.md              # 技能定义文件（OpenClaw规范）
+├── README.md             # 使用说明
+└── scripts/
+    ├── generate.py       # 本地模型生成脚本
+    └── generate_api.py   # 云端API生成脚本（ModelScope）
+```
+
+SKILL.md 核心配置：
+
+```yaml
+---
+name: private_art_assistant
+description: AI PC端侧私密绘画助手 - 基于OpenVINO优化的Stable Diffusion本地图像生成
+metadata:
+  openclaw:
+    os: [linux, win32, darwin]
+    requires:
+      bins: [python]
+---
+```
+
+#### 3.4.4 Skill 运行展示
+
+在 CoPaw 中导入 private_art_assistant Skill 后，可直接通过对话调用：
+
+<!-- 截图1：Skill 导入/安装界面 - 请在此处插入截图 -->
+
+<!-- 截图2：Skill 被调用并返回结果界面 - 请在此处插入截图 -->
+
+Skill 支持两种运行模式：
+
+1. **本地模式**：在 Intel AI PC 上使用 OpenVINO 优化的 Stable Diffusion 模型生成图片，完全离线运行，隐私保护
+2. **云端模式**：通过 ModelScope API 调用云端模型（Kolors/Qwen-Image/FLUX 等），无需本地 GPU
 
 ---
 
@@ -534,15 +574,65 @@ def set_power_mode(self, mode="balanced"):
 
 ### 9.1 代码地址
 
-GitHub: [https://github.com/oukohou/ai-pc-private-art-assistant](https://github.com/yourusername/ai-pc-private-art-assistant)
+GitHub: [https://github.com/oukohou/ai-pc-private-art-assistant](https://github.com/oukohou/ai-pc-private-art-assistant)
 
-### 9.2 演示视频
+### 9.2 灵感流
+[https://modelscope.cn/gallery/Dracarysall/deed72d0-3053-4828-b8dc-f9b75c857f5b](https://modelscope.cn/gallery/Dracarysall/deed72d0-3053-4828-b8dc-f9b75c857f5b)
 
-视频链接: [https://youtu.be/demo-video](https://youtu.be/demo-video)
+### 9.3 OpenClaw Skill 部署与使用
 
-### 9.3 性能测试报告
+本项目已封装为 OpenClaw Skill，可在 CoPaw 中直接导入使用。
 
-详细测试数据: [benchmark.md](benchmark.md)
+#### 9.3.1 Skill 信息
+
+- **Skill 名称**: `private_art_assistant`
+- **Skill 链接**: [https://github.com/oukohou/ai-pc-private-art-assistant/tree/master/skills/private-art-assistant](https://github.com/oukohou/ai-pc-private-art-assistant/tree/master/skills/private-art-assistant)
+- **描述**: AI PC端侧私密绘画助手 - 基于Intel OpenVINO优化的Stable Diffusion本地生成图片，完全保护隐私
+
+#### 9.3.2 Skill 导入
+
+在 CoPaw 的 Skill 管理界面中，可以看到 `private_art_assistant` 已启用：
+
+![Skill导入截图](https://i.postimg.cc/XXXX/skill-import.png)
+
+Skill 详情展示了调用命令和技术架构：
+- **推理引擎**: Intel OpenVINO™ 2026.0
+- **AI模型**: Stable Diffusion v1.5
+- **Web服务**: Gradio (本地 http://127.0.0.1:7860)
+- **核心优势**: 完全本地化运行，零网络依赖，隐私保护
+
+#### 9.3.3 Skill 调用演示
+
+在 CoPaw 对话中输入"帮我画一只戴帽子的猫"，系统会自动识别并调用 `private_art_assistant` Skill：
+
+![Skill调用截图1](https://i.postimg.cc/XXXX/skill-call-1.png)
+
+CoPaw 自动匹配 Skill 后，执行以下调用链：
+1. `read_file` - 读取 SKILL.md 获取使用说明
+2. `execute_shell_command` - 执行本地生成脚本
+3. `send_file_to_user` - 发送生成的图片
+
+![Skill调用截图2](https://i.postimg.cc/XXXX/skill-call-2.png)
+
+生成完成后，CoPaw 展示完整的生成信息：
+- **画面描述**: 一只戴着时尚帽子的可爱猫咪
+- **耗时**: 约 3分36秒
+- **参数**: 20步推理，引导比例 7.5
+- **保存位置**: `cat_with_hat.png`
+
+![Skill调用截图3](https://i.postimg.cc/XXXX/skill-call-3.png)
+
+生成的图片效果：
+
+![生成的猫咪图片](https://i.postimg.cc/XXXX/cat-with-hat.png)
+
+#### 9.3.4 技术特点
+
+通过 OpenClaw Skill 封装，本项目实现了：
+- **标准化接口**: 符合 OpenClaw 规范，可被任何支持该规范的 Agent 调用
+- **本地执行**: 所有计算在本地 AI PC 完成，无需云端 API
+- **隐私保护**: 数据不出本地，完全保护用户隐私
+- **零网络依赖**: 离线环境也能正常使用
 
 ### 9.4 参考文献
 
